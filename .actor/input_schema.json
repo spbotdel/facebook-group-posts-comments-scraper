@@ -1,0 +1,297 @@
+{
+  "title": "Facebook group, page and profile posts with comments",
+  "description": "Collect public Facebook group, page, or personal profile posts, then enrich them with public comments and replies. The Actor orchestrates the feed and comment engines and returns one combined dataset.",
+  "type": "object",
+  "schemaVersion": 1,
+  "properties": {
+    "startUrls": {
+      "title": "Facebook URLs",
+      "type": "array",
+      "description": "Public Facebook group, page, or personal profile URLs. Group URLs and /people/ profile URLs are auto-detected; set userData.surfaceType for ambiguous handles. Large URL lists are processed in batches without silent truncation.",
+      "editor": "requestListSources",
+      "prefill": [
+        {
+          "url": "https://www.facebook.com/groups/1564552680458634/"
+        }
+      ],
+      "items": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "title": "Facebook URL",
+            "description": "Public Facebook group, page, or personal profile URL.",
+            "type": "string"
+          },
+          "userData": {
+            "title": "Surface metadata",
+            "description": "Optional metadata used to force a specific Facebook surface type.",
+            "type": "object",
+            "properties": {
+              "surfaceType": {
+                "title": "Surface type",
+                "description": "Use group, page, or profile when auto-detection is ambiguous.",
+                "type": "string",
+                "enum": ["group", "page", "profile"]
+              }
+            }
+          }
+        },
+        "required": ["url"]
+      }
+    },
+    "maxPostsPerGroup": {
+      "title": "Max posts per surface",
+      "type": "integer",
+      "description": "Maximum posts to collect from each group, page, or profile before comment enrichment. A run charge limit can reduce this value to keep collection within maxTotalChargeUsd.",
+      "editor": "number",
+      "unit": "posts",
+      "default": 30,
+      "minimum": 1,
+      "maximum": 1000
+    },
+    "sortMode": {
+      "title": "Feed sorting",
+      "type": "string",
+      "description": "Facebook group feed order. Pages and personal profiles use newest-first feeds; CHRONOLOGICAL is recommended for group monitoring.",
+      "editor": "select",
+      "default": "CHRONOLOGICAL",
+      "enum": [
+        "CHRONOLOGICAL",
+        "RECENT_ACTIVITY",
+        "TOP_POSTS",
+        "CHRONOLOGICAL_LISTINGS"
+      ],
+      "enumTitles": [
+        "New posts first",
+        "Recent activity",
+        "Top posts",
+        "Buy/sell listings"
+      ]
+    },
+    "onlyPostsNewerThan": {
+      "title": "Only posts newer than",
+      "type": "string",
+      "description": "Inclusive lower date boundary. Supports ISO dates and relative values such as 30 days or 2 weeks.",
+      "editor": "textfield"
+    },
+    "onlyPostsOlderThan": {
+      "title": "Only posts older than",
+      "type": "string",
+      "description": "Exclusive upper date boundary: posts exactly at the boundary are excluded. Combine with onlyPostsNewerThan for a closed date range.",
+      "editor": "textfield"
+    },
+    "knownPostIds": {
+      "title": "Known post IDs",
+      "type": "array",
+      "description": "Post IDs already stored by your pipeline. In chronological mode the feed can stop at a known post.",
+      "editor": "stringList",
+      "items": {
+        "type": "string"
+      }
+    },
+    "search": {
+      "title": "Post text filter",
+      "type": "string",
+      "description": "Case-insensitive post text filter applied before comment enrichment. Use searchMode=HISTORY_SCAN to scan history up to searchMaxPostsPerSurface instead of only filtering the latest feed snapshot.",
+      "editor": "textfield"
+    },
+    "searchMode": {
+      "title": "Search mode",
+      "type": "string",
+      "description": "LOCAL filters the normal latest-post snapshot. HISTORY_SCAN walks backward through the public feed up to searchMaxPostsPerSurface and returns up to maxSearchResults matching posts. Facebook's signed-out search page requires login, so this is the no-cookie historical-search equivalent.",
+      "editor": "select",
+      "default": "LOCAL",
+      "enum": ["LOCAL", "HISTORY_SCAN"],
+      "enumTitles": ["Filter current snapshot", "Scan public history"]
+    },
+    "searchMaxPostsPerSurface": {
+      "title": "History scan depth",
+      "type": "integer",
+      "description": "Maximum public posts walked per group, page, or profile when searchMode=HISTORY_SCAN.",
+      "editor": "number",
+      "unit": "posts",
+      "default": 300,
+      "minimum": 1,
+      "maximum": 1000
+    },
+    "maxSearchResults": {
+      "title": "Max matching posts",
+      "type": "integer",
+      "description": "Maximum matching posts returned when searchMode=HISTORY_SCAN.",
+      "editor": "number",
+      "unit": "posts",
+      "default": 100,
+      "minimum": 1,
+      "maximum": 1000
+    },
+    "minComments": {
+      "title": "Minimum comments",
+      "type": "integer",
+      "description": "Keep posts whose feed metadata reports at least this many comments. Posts with unknown engagement are kept.",
+      "editor": "number",
+      "unit": "comments",
+      "default": 0,
+      "minimum": 0,
+      "maximum": 1000000
+    },
+    "minReactions": {
+      "title": "Minimum reactions",
+      "type": "integer",
+      "description": "Keep posts whose feed metadata reports at least this many reactions. Posts with unknown engagement are kept.",
+      "editor": "number",
+      "unit": "reactions",
+      "default": 0,
+      "minimum": 0,
+      "maximum": 1000000
+    },
+    "filterAuthor": {
+      "title": "Filter by post author",
+      "type": "string",
+      "description": "Case-insensitive substring match against the public post author name or profile URL.",
+      "editor": "textfield"
+    },
+    "startCursor": {
+      "title": "Start cursor",
+      "type": "string",
+      "description": "Cursor from a previous run's SUMMARY for an older-history backfill. Supported when startUrls contains exactly one group, page, or profile.",
+      "editor": "textarea"
+    },
+    "commentsMode": {
+      "title": "Comments mode",
+      "type": "string",
+      "description": "none: posts only. inline: up to 3 comments per post. full: collect full public comment threads with the configured limits.",
+      "editor": "select",
+      "default": "full",
+      "enum": ["none", "inline", "full"],
+      "enumTitles": ["Posts only", "Inline comments", "Full comments and replies"]
+    },
+    "maxCommentsPerPost": {
+      "title": "Max comments per post",
+      "type": "integer",
+      "description": "Maximum comment and reply rows collected for each post in full mode. Inline mode is capped at 3.",
+      "editor": "number",
+      "unit": "comments",
+      "default": 50,
+      "minimum": 1,
+      "maximum": 1000
+    },
+    "includeReplies": {
+      "title": "Include replies",
+      "type": "boolean",
+      "description": "Expand public reply threads during full comment collection.",
+      "editor": "checkbox",
+      "default": true
+    },
+    "maxReplyThreadsPerPost": {
+      "title": "Reply threads per post",
+      "type": "integer",
+      "description": "Maximum reply-bearing top-level comments to expand per post.",
+      "editor": "number",
+      "unit": "threads",
+      "default": 20,
+      "minimum": 0,
+      "maximum": 200
+    },
+    "maxRepliesPerPost": {
+      "title": "Max replies per post",
+      "type": "integer",
+      "description": "Maximum reply rows collected per post in full mode.",
+      "editor": "number",
+      "unit": "replies",
+      "default": 100,
+      "minimum": 0,
+      "maximum": 1000
+    },
+    "commentsConcurrency": {
+      "title": "Comments concurrency",
+      "type": "integer",
+      "description": "How many posts the comment engine processes in parallel.",
+      "editor": "number",
+      "unit": "posts",
+      "default": 5,
+      "minimum": 1,
+      "maximum": 20
+    },
+    "commentsSortOrder": {
+      "title": "Comment sorting",
+      "type": "string",
+      "description": "Facebook comment order used by the comment engine.",
+      "editor": "select",
+      "default": "MOST_RELEVANT",
+      "enum": ["MOST_RELEVANT", "NEWEST", "ALL_COMMENTS"]
+    },
+    "unionSorts": {
+      "title": "Union comment sort windows",
+      "type": "boolean",
+      "description": "Walk both relevant and newest comment windows to improve public coverage.",
+      "editor": "checkbox",
+      "default": true
+    },
+    "onlyCommentsNewerThan": {
+      "title": "Only comments newer than",
+      "type": "string",
+      "description": "Keep comments newer than an absolute date or relative value such as 30 days, 12 hours, or 2 weeks.",
+      "editor": "textfield"
+    },
+    "commentTextSearch": {
+      "title": "Comment text filter",
+      "type": "string",
+      "description": "Case-insensitive local filter over returned comment and reply text. It filters publicly collected comments and does not bypass signed-out Facebook limits.",
+      "editor": "textfield"
+    },
+    "minCommentReactions": {
+      "title": "Minimum comment reactions",
+      "type": "integer",
+      "description": "Keep comments and replies with at least this many reactions.",
+      "editor": "number",
+      "unit": "reactions",
+      "default": 0,
+      "minimum": 0,
+      "maximum": 1000000
+    },
+    "includePostTextInCommentRows": {
+      "title": "Post text in comment rows",
+      "type": "boolean",
+      "description": "Include post_text in each returned comment row, including separate output mode.",
+      "editor": "checkbox",
+      "default": false
+    },
+    "commentsOutput": {
+      "title": "Comments output",
+      "type": "string",
+      "description": "nested stores comments inside each post row. separate emits post rows and comment rows separately.",
+      "editor": "select",
+      "default": "nested",
+      "enum": ["nested", "separate"]
+    },
+    "proxyTier": {
+      "title": "Proxy tier",
+      "type": "string",
+      "description": "Proxy behavior forwarded to the underlying group and comment engines.",
+      "editor": "select",
+      "default": "auto",
+      "enum": ["auto", "datacenter", "residential"]
+    },
+    "proxyCountry": {
+      "title": "Proxy country",
+      "type": "string",
+      "description": "Two-letter country code forwarded to page/profile engines.",
+      "editor": "textfield",
+      "default": "US"
+    },
+    "dedupeStoreName": {
+      "title": "Comment dedupe store",
+      "type": "string",
+      "description": "Stable logical Key-Value Store name used to return only new comments across scheduled runs. It is namespaced per Apify user internally, and the effective internal name is reported in SUMMARY.",
+      "editor": "textfield"
+    },
+    "failOnEmpty": {
+      "title": "Fail on empty",
+      "type": "boolean",
+      "description": "Mark the run failed when no posts are selected, or when no final output rows are produced. An existing post with zero public comments is still a valid output row.",
+      "editor": "checkbox",
+      "default": false
+    }
+  },
+  "required": ["startUrls"]
+}

@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Actor B output</title>
+  <style>
+    :root { --ink:#14251f; --paper:#f7f4ec; --green:#0a6b50; --mint:#c8ead9; --gold:#f3cf72; --line:#b9c7bc; }
+    * { box-sizing:border-box; }
+    body { margin:0; width:1600px; height:900px; overflow:hidden; background:var(--paper); color:var(--ink); font-family:Georgia, "Times New Roman", serif; }
+    .page { width:100%; height:100%; padding:66px 78px; }
+    header { display:flex; justify-content:space-between; align-items:end; border-bottom:3px solid var(--ink); padding-bottom:24px; }
+    h1 { margin:0; font-size:58px; letter-spacing:-.035em; }
+    .meta { font:16px/1.4 Consolas, monospace; color:var(--green); text-align:right; }
+    .grid { display:grid; grid-template-columns:1.08fr .92fr; gap:34px; margin-top:34px; }
+    .post, .comment { border:2px solid var(--ink); background:#fff; box-shadow:7px 7px 0 var(--mint); padding:25px; }
+    .post { min-height:320px; }
+    .comment { margin-bottom:18px; box-shadow:5px 5px 0 var(--gold); }
+    .label { font:700 14px/1.2 Consolas, monospace; color:var(--green); text-transform:uppercase; letter-spacing:.1em; }
+    .text { margin:14px 0 20px; font-size:24px; line-height:1.34; }
+    .comment .text { margin:10px 0 12px; font-size:18px; }
+    .stats { display:flex; gap:12px; flex-wrap:wrap; }
+    .stat { border:1px solid var(--line); padding:8px 11px; font:14px/1 Consolas, monospace; background:var(--paper); }
+    .coverage { margin-top:22px; padding:15px; background:var(--mint); font:700 15px/1.4 Consolas, monospace; }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header><h1>Structured public context.</h1><div class="meta">One post row<br>Comments nested or separate<br>Coverage diagnostics</div></header>
+    <section class="grid">
+      <article class="post">
+        <div class="label">Post</div>
+        <div class="text">A public community discussion with authors, timestamps, engagement, media metadata, and a stable permalink.</div>
+        <div class="stats"><span class="stat">reactions 247</span><span class="stat">comments 38</span><span class="stat">shares 12</span><span class="stat">surface group</span></div>
+        <div class="coverage">comments_collected 31 / comments_announced 38<br>public coverage 81.58%</div>
+      </article>
+      <section>
+        <article class="comment"><div class="label">Comment</div><div class="text">A top-level public reply with author, time, reactions, extracted URLs, and stable comment URL.</div></article>
+        <article class="comment"><div class="label">Reply depth 1</div><div class="text">Parent-child linkage is preserved for thread reconstruction and AI-ready datasets.</div></article>
+      </section>
+    </section>
+  </main>
+</body>
+</html>

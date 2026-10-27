@@ -1,0 +1,88 @@
+{
+  "actorSpecification": 1,
+  "title": "Facebook posts and comments",
+  "description": "One group, page, or profile post row with optional nested comments, or post and comment rows when commentsOutput is separate.",
+  "fields": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "properties": {
+      "record_type": { "type": "string" },
+      "surface_type": { "type": ["string", "null"] },
+      "group_id": { "type": ["string", "null"] },
+      "group_url": { "type": ["string", "null"] },
+      "group_name": { "type": ["string", "null"] },
+      "source_profile_id": { "type": ["string", "null"] },
+      "source_profile_url": { "type": ["string", "null"] },
+      "source_profile_name": { "type": ["string", "null"] },
+      "source_post_id": { "type": ["string", "null"] },
+      "source_url": { "type": ["string", "null"] },
+      "created_at": { "type": ["string", "null"] },
+      "creation_time": { "type": ["string", "number", "null"] },
+      "raw_text": { "type": ["string", "null"] },
+      "author": { "type": ["object", "null"] },
+      "stats": { "type": ["object", "null"] },
+      "media": { "type": ["array", "null"] },
+      "extracted_urls": {
+        "type": ["array", "null"],
+        "items": { "type": "string" }
+      },
+      "comments": { "type": ["array", "null"] },
+      "comments_collected": { "type": ["integer", "null"] },
+      "comments_collected_before_filters": { "type": ["integer", "null"] },
+      "comments_announced": { "type": ["integer", "null"] },
+      "comments_coverage_percent": { "type": ["number", "null"] },
+      "comments_coverage_percent_before_budget": { "type": ["number", "null"] },
+      "comments_truncated_by_budget": { "type": ["integer", "null"] },
+      "comments_blocked": { "type": ["string", "null"] },
+      "post_text": { "type": ["string", "null"] }
+    }
+  },
+  "views": {
+    "combined": {
+      "title": "Posts + comments",
+      "transformation": {
+        "fields": [
+          "source_url",
+          "created_at",
+          "raw_text",
+          "author",
+          "stats",
+          "comments_collected",
+          "comments_announced",
+          "comments_coverage_percent",
+          "comments_blocked",
+          "comments"
+        ]
+      },
+      "display": {
+        "component": "table",
+        "properties": {
+          "source_url": { "label": "Post URL", "format": "link" },
+          "created_at": { "label": "Created", "format": "date" },
+          "raw_text": { "label": "Post text" },
+          "author": { "label": "Author" },
+          "comments_collected": { "label": "Comments", "format": "number" },
+          "comments_announced": { "label": "Announced", "format": "number" },
+          "comments_coverage_percent": { "label": "Coverage %", "format": "number" },
+          "comments_blocked": { "label": "Comments status" },
+          "comments": { "label": "Comment rows" }
+        }
+      }
+    },
+    "posts": {
+      "title": "Posts",
+      "transformation": {
+        "fields": ["source_url", "created_at", "raw_text", "author", "stats"]
+      },
+      "display": {
+        "component": "table",
+        "properties": {
+          "source_url": { "label": "Post URL", "format": "link" },
+          "created_at": { "label": "Created", "format": "date" },
+          "raw_text": { "label": "Post text" },
+          "author": { "label": "Author" }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "name": "facebook-group-posts-comments-scraper",
+  "version": "0.1.17",
+  "description": "Scrape public Facebook group, page, and profile posts with comments and replies without cookies.",
+  "type": "module",
+  "private": true,
+  "license": "MIT",
+  "scripts": {
+    "start": "node src/main.js",
+    "check": "node --check src/main.js && node --check src/core.js && node --check src/engines/group/dateRange.js",
+    "test": "node --test",
+    "deploy:internal-engines": "node deploy-internal-engines.mjs",
+    "deploy:schedule": "node create-private-schedule.mjs",
+    "deploy:pricing": "node apply-pricing.mjs"
+  },
+  "dependencies": {
+    "apify": "^3.4.5",
+    "apify-client": "^2.25.0",
+    "got-scraping": "^4.2.2",
+    "html-entities": "^2.6.0",
+    "tough-cookie": "^6.0.2"
+  }
+}

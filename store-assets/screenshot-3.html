@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Actor B pricing</title>
+  <style>
+    :root { --ink:#10251d; --paper:#f4f0e6; --green:#08684d; --mint:#bde7d3; --gold:#f0ca69; --line:#aebfb3; }
+    * { box-sizing:border-box; }
+    body { margin:0; width:1600px; height:900px; overflow:hidden; background:var(--paper); color:var(--ink); font-family:Georgia, "Times New Roman", serif; }
+    .page { width:100%; height:100%; padding:72px 84px; background:linear-gradient(160deg, transparent 0 60%, rgba(8,104,77,.12) 60% 100%); }
+    .eyebrow { font:700 17px/1.2 Consolas, monospace; color:var(--green); letter-spacing:.12em; text-transform:uppercase; }
+    h1 { margin:16px 0 14px; font-size:72px; letter-spacing:-.045em; }
+    .lede { width:1000px; font-size:24px; line-height:1.42; color:#53665d; }
+    table { width:100%; margin-top:50px; border-collapse:collapse; background:#fff; box-shadow:10px 10px 0 var(--mint); }
+    th, td { padding:24px 28px; border:2px solid var(--ink); text-align:left; font-size:23px; }
+    th { background:var(--ink); color:#fff; font:700 17px/1.2 Consolas, monospace; letter-spacing:.08em; text-transform:uppercase; }
+    td.price { font:700 32px/1 Consolas, monospace; color:var(--green); }
+    .foot { margin-top:28px; display:flex; gap:16px; }
+    .pill { border:2px solid var(--green); background:#fff; padding:11px 15px; font:700 15px/1.2 Consolas, monospace; color:var(--green); }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <div class="eyebrow">Clear events. Predictable cost.</div>
+    <h1>Pay for actual posts and comments.</h1>
+    <p class="lede">Nested and separate output cost the same because pricing follows logical result rows, not the shape of the dataset.</p>
+    <table>
+      <thead><tr><th>Event</th><th>BRONZE+</th><th>FREE</th><th>What it means</th></tr></thead>
+      <tbody>
+        <tr><td>Post</td><td class="price">$3 / 1,000</td><td class="price">$6 / 1,000</td><td>One returned post</td></tr>
+        <tr><td>Comment</td><td class="price">$1 / 1,000</td><td class="price">$2 / 1,000</td><td>One returned comment or reply</td></tr>
+        <tr><td>Actor start</td><td class="price">$0.005</td><td class="price">$0.005</td><td>Per run, one event per GB</td></tr>
+      </tbody>
+    </table>
+    <div class="foot"><span class="pill">Minimum run limit $0.02</span><span class="pill">No cookies</span><span class="pill">API and MCP ready</span></div>
+  </main>
+</body>
+</html>
