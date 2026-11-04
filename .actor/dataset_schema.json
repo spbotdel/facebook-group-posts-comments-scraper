@@ -6,35 +6,189 @@
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "object",
     "properties": {
-      "record_type": { "type": "string" },
-      "surface_type": { "type": ["string", "null"] },
-      "group_id": { "type": ["string", "null"] },
-      "group_url": { "type": ["string", "null"] },
-      "group_name": { "type": ["string", "null"] },
-      "source_profile_id": { "type": ["string", "null"] },
-      "source_profile_url": { "type": ["string", "null"] },
-      "source_profile_name": { "type": ["string", "null"] },
-      "source_post_id": { "type": ["string", "null"] },
-      "source_url": { "type": ["string", "null"] },
-      "created_at": { "type": ["string", "null"] },
-      "creation_time": { "type": ["string", "number", "null"] },
-      "raw_text": { "type": ["string", "null"] },
-      "author": { "type": ["object", "null"] },
-      "stats": { "type": ["object", "null"] },
-      "media": { "type": ["array", "null"] },
-      "extracted_urls": {
-        "type": ["array", "null"],
-        "items": { "type": "string" }
+      "record_type": {
+        "type": "string",
+        "description": "Indicates whether the dataset row represents a post or a comment as determined by the output mode."
       },
-      "comments": { "type": ["array", "null"] },
-      "comments_collected": { "type": ["integer", "null"] },
-      "comments_collected_before_filters": { "type": ["integer", "null"] },
-      "comments_announced": { "type": ["integer", "null"] },
-      "comments_coverage_percent": { "type": ["number", "null"] },
-      "comments_coverage_percent_before_budget": { "type": ["number", "null"] },
-      "comments_truncated_by_budget": { "type": ["integer", "null"] },
-      "comments_blocked": { "type": ["string", "null"] },
-      "post_text": { "type": ["string", "null"] }
+      "surface_type": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "Identifies the kind of Facebook surface scraped, typically group, page, or profile, and is null when undetermined."
+      },
+      "group_id": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "Holds the numeric Facebook identifier of the source group, null for page or profile sources."
+      },
+      "group_url": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "Holds the canonical URL of the source Facebook group, null for page or profile sources."
+      },
+      "group_name": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "Holds the display name of the source Facebook group at scrape time, null for page or profile sources or when unavailable."
+      },
+      "source_profile_id": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "Holds the numeric Facebook identifier of the scraped page or profile, null for group sources or when unavailable."
+      },
+      "source_profile_url": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "Holds the canonical URL of the scraped Facebook page or profile, null for group sources or when unavailable."
+      },
+      "source_profile_name": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "Holds the display name of the scraped Facebook page or profile at scrape time, null when unavailable."
+      },
+      "source_post_id": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "Gives the Facebook identifier of the origin post, matching the row itself for posts and the parent post for comments."
+      },
+      "source_url": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "Holds the canonical Facebook URL of the origin post, null when it cannot be resolved."
+      },
+      "created_at": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "Provides the publication time as an ISO 8601 timestamp string in UTC, null when unavailable."
+      },
+      "creation_time": {
+        "type": [
+          "string",
+          "number",
+          "null"
+        ],
+        "description": "Provides the publication time as a Unix epoch timestamp in seconds, available as number or numeric string, null when unavailable."
+      },
+      "raw_text": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "Contains the full untruncated textual content of the current post or comment, null when there is no text."
+      },
+      "author": {
+        "type": [
+          "object",
+          "null"
+        ],
+        "description": "Contains structured information about the creator such as identifier, name, and profile URL, null when unavailable."
+      },
+      "stats": {
+        "type": [
+          "object",
+          "null"
+        ],
+        "description": "Contains engagement counters such as likes, shares, and comment counts as reported by Facebook, null when unavailable."
+      },
+      "media": {
+        "type": [
+          "array",
+          "null"
+        ],
+        "description": "Lists attached photos, videos, or other media objects with their URLs and types, null or empty when there are no attachments."
+      },
+      "extracted_urls": {
+        "type": [
+          "array",
+          "null"
+        ],
+        "items": {
+          "type": "string"
+        },
+        "description": "Lists distinct external URLs detected inside the text content, null or empty when none were found."
+      },
+      "comments": {
+        "type": [
+          "array",
+          "null"
+        ],
+        "description": "Lists nested comment objects collected for the post when inline comment expansion is enabled, null or empty otherwise."
+      },
+      "comments_collected": {
+        "type": [
+          "integer",
+          "null"
+        ],
+        "description": "Reports the number of comments actually stored in the output after filtering, in count units."
+      },
+      "comments_collected_before_filters": {
+        "type": [
+          "integer",
+          "null"
+        ],
+        "description": "Reports the number of comments retrieved before keyword or date filtering was applied, in count units."
+      },
+      "comments_announced": {
+        "type": [
+          "integer",
+          "null"
+        ],
+        "description": "Reports the total comment count displayed by Facebook for the post, in count units, null when not shown."
+      },
+      "comments_coverage_percent": {
+        "type": [
+          "number",
+          "null"
+        ],
+        "description": "Expresses stored comments as a percentage from 0 to 100 relative to the announced total, null when incalculable."
+      },
+      "comments_coverage_percent_before_budget": {
+        "type": [
+          "number",
+          "null"
+        ],
+        "description": "Expresses retrieved comments before per-post budget truncation as a percentage from 0 to 100 of the announced total, null when incalculable."
+      },
+      "comments_truncated_by_budget": {
+        "type": [
+          "integer",
+          "null"
+        ],
+        "description": "Reports how many comments were dropped because the per-post maximum limit was reached, in count units."
+      },
+      "comments_blocked": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "Explains why comments could not be collected, for example disabled comments or access restriction, null when collection was possible."
+      },
+      "post_text": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "Provides the parent post message for context when the row is a comment, null for post rows or when unavailable."
+      }
     }
   },
   "views": {
@@ -57,30 +211,69 @@
       "display": {
         "component": "table",
         "properties": {
-          "source_url": { "label": "Post URL", "format": "link" },
-          "created_at": { "label": "Created", "format": "date" },
-          "raw_text": { "label": "Post text" },
-          "author": { "label": "Author" },
-          "comments_collected": { "label": "Comments", "format": "number" },
-          "comments_announced": { "label": "Announced", "format": "number" },
-          "comments_coverage_percent": { "label": "Coverage %", "format": "number" },
-          "comments_blocked": { "label": "Comments status" },
-          "comments": { "label": "Comment rows" }
+          "source_url": {
+            "label": "Post URL",
+            "format": "link"
+          },
+          "created_at": {
+            "label": "Created",
+            "format": "date"
+          },
+          "raw_text": {
+            "label": "Post text"
+          },
+          "author": {
+            "label": "Author"
+          },
+          "comments_collected": {
+            "label": "Comments",
+            "format": "number"
+          },
+          "comments_announced": {
+            "label": "Announced",
+            "format": "number"
+          },
+          "comments_coverage_percent": {
+            "label": "Coverage %",
+            "format": "number"
+          },
+          "comments_blocked": {
+            "label": "Comments status"
+          },
+          "comments": {
+            "label": "Comment rows"
+          }
         }
       }
     },
     "posts": {
       "title": "Posts",
       "transformation": {
-        "fields": ["source_url", "created_at", "raw_text", "author", "stats"]
+        "fields": [
+          "source_url",
+          "created_at",
+          "raw_text",
+          "author",
+          "stats"
+        ]
       },
       "display": {
         "component": "table",
         "properties": {
-          "source_url": { "label": "Post URL", "format": "link" },
-          "created_at": { "label": "Created", "format": "date" },
-          "raw_text": { "label": "Post text" },
-          "author": { "label": "Author" }
+          "source_url": {
+            "label": "Post URL",
+            "format": "link"
+          },
+          "created_at": {
+            "label": "Created",
+            "format": "date"
+          },
+          "raw_text": {
+            "label": "Post text"
+          },
+          "author": {
+            "label": "Author"
+          }
         }
       }
     }
