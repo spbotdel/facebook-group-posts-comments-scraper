@@ -1,5 +1,7 @@
 # Facebook Group, Page & Profile Posts Scraper with Comments
 
+[![Source on GitHub](https://img.shields.io/badge/source-GitHub-24292f)](https://github.com/spbotdel/facebook-group-posts-comments-scraper)
+
 **Collect public Facebook group, page, and personal profile posts with their public comments and replies in one run, without cookies or login.**
 
 This Actor returns structured post rows with optional nested comments, or separate post and comment rows. It is built for community analysis, brand and competitor monitoring, lead research, social listening, AI datasets, and scheduled incremental pipelines.
