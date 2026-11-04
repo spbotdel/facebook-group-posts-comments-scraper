@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.18 - 2026-11-04
+
+- README: added the public GitHub source badge for `spbotdel/facebook-group-posts-comments-scraper`. No runtime code changed.
+- Build `0.1.18` published the README to the Apify store page; smoke run `o9n4Xav7hd5xI4ScO` succeeded with two posts.
+
 ## 0.1.17 - 2026-10-27
 
 - Hardened the vendored group date parser with bounded relative dates, overflow protection, UTC handling for offsetless ISO timestamps, and rejection of invalid numeric boundaries.
