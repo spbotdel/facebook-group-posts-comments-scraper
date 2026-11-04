@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.19 - 2026-11-04
+
+- All 26 dataset fields now carry agent-facing descriptions; runtime code unchanged.
+- Build `0.1.19` smoke run `F7gRcOGWZTLQdzuXM` succeeded with two posts.
+
 ## 0.1.18 - 2026-11-04
 
 - README: added the public GitHub source badge for `spbotdel/facebook-group-posts-comments-scraper`. No runtime code changed.
