@@ -12,7 +12,7 @@
       "type": "string",
       "title": "Run summary",
       "description": "URL of the SUMMARY record with run totals, comment coverage, blocked surfaces, and stop reasons.",
-      "template": "{{links.apiKeyValueStoreUrl}}/records/SUMMARY"
+      "template": "{{links.apiDefaultKeyValueStoreUrl}}/records/SUMMARY"
     }
   }
 }
