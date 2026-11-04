@@ -1,0 +1,65 @@
+# Facebook Group, Page & Profile Posts Scraper with Comments
+
+Apify Actor: https://apify.com/spbotdel/facebook-group-posts-comments-scraper
+Actor ID: D4fo5uWHFVEb4FYJ2
+GitHub: https://github.com/spbotdel/facebook-group-posts-comments-scraper
+MCP endpoint: https://mcp.apify.com?tools=spbotdel/facebook-group-posts-comments-scraper
+
+## What this tool does
+
+Collects public Facebook group, page, and personal-profile posts with their public comments and replies in one run, without cookies or login. Rows can be posts with nested comments, or separate post and comment rows.
+
+## Choose this Actor for
+
+- group, page, or profile posts with comments in one run;
+- scheduled comment monitoring with deduplication;
+- AI-ready post/comment datasets;
+- CSV/JSON export for social listening and community research;
+- MCP, n8n, API, or webhook workflows.
+
+## Do not choose this Actor for
+
+- private, friends-only, or login-required content;
+- Reels or photo pages that Facebook does not serve logged out;
+- global Facebook keyword search;
+- bypassing Facebook access restrictions.
+
+## Minimal input
+
+```json
+{
+  "startUrls": [{ "url": "https://www.facebook.com/groups/<id>/" }],
+  "maxPostsPerGroup": 3,
+  "commentsMode": "full",
+  "maxCommentsPerPost": 20,
+  "includeReplies": true
+}
+```
+
+For a page or profile, pass `userData.surfaceType` as `page` or `profile` when the URL is ambiguous.
+
+## MCP usage
+
+Minimal `call-actor` input:
+
+```json
+{ "startUrls": [{ "url": "https://www.facebook.com/groups/<id>/" }], "maxPostsPerGroup": 3, "commentsMode": "full", "maxCommentsPerPost": 20 }
+```
+
+Recommended `callOptions`:
+
+```json
+{ "memory": 1024, "timeoutSecs": 600, "maxTotalChargeUsd": 0.10 }
+```
+
+After the run, read dataset items with `get-dataset-items` and the `SUMMARY` record with `get-key-value-store-record`.
+
+## Result grain and pricing
+
+One result equals one post, and optionally one result per comment when `commentsOutput` is `separate`. Posts are scanned and billed even when no new comments are found. Paid plans: from $3 per 1,000 posts plus $1 per 1,000 comments, plus a $0.005 run start. FREE tier: $6 per 1,000 posts plus $2 per 1,000 comments.
+
+## Limits
+
+- Public content only; hidden or restricted comments are not returned.
+- Logged-out group feeds can stop before the announced total; read `coverage_status` and `SUMMARY`.
+- Comment availability depends on Facebook's public surface.
