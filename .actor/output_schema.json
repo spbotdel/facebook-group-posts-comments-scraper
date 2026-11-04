@@ -5,11 +5,13 @@
     "results": {
       "type": "string",
       "title": "Dataset items",
+      "description": "URL of the default dataset with post and/or comment rows, depending on commentsOutput mode. Open it to download JSON, CSV, or Excel.",
       "template": "{{links.apiDefaultDatasetUrl}}/items"
     },
     "summary": {
       "type": "string",
       "title": "Run summary",
+      "description": "URL of the SUMMARY record with run totals, comment coverage, blocked surfaces, and stop reasons.",
       "template": "{{links.apiKeyValueStoreUrl}}/records/SUMMARY"
     }
   }
