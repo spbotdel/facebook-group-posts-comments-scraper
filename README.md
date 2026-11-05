@@ -8,6 +8,8 @@ This Actor returns structured post rows with optional nested comments, or separa
 
 The output includes post text, author, timestamp, engagement, media metadata, stable URLs, comments, replies, parent-child thread relationships, and per-post public coverage diagnostics. Data is available through the Apify API, MCP, schedules, webhooks, JSON, CSV, and Excel.
 
+**Agent Skill:** use the [facebook-intelligence skill](https://github.com/spbotdel/facebook-intelligence-skill) to route requests across all four spbotdel Facebook Actors through Apify MCP.
+
 ## Supported surfaces
 
 | Surface | Input | Notes |
