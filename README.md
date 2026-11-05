@@ -166,6 +166,8 @@ On paid Apify plans you pay $3 per 1000 posts and $1 per 1000 comments, plus a $
 ### How do I monitor a page or group for only new comments?
 Keep the same dedupeStoreName across scheduled runs, with commentsSortOrder NEWEST and unionSorts false. Each run returns only new public comments and replies. Scanned posts are still billed even when no new comments appear.
 
+To collect comments reliably, point the task at a post permalink. A page or group feed can return posts with zero comments because Facebook does not expose the comment list on that surface.
+
 ### Can I backfill an older date range?
 Yes for public groups. Combine onlyPostsNewerThan with onlyPostsOlderThan to bound the window, and continue with startCursor taken from SUMMARY.groupFeed.nextCursor. Page and profile feeds are newest-first, so older backfills are limited by maxPostsPerGroup.
 
