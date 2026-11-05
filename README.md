@@ -154,57 +154,38 @@ Marketplace enrichment is intentionally excluded and remains a separate product.
 
 ## FAQ
 
-### Do I need Facebook cookies or login?
-
-No. The Actor collects public content served to signed-out visitors. It does not ask for cookies, passwords, sessions, or a Facebook account. Private, friends-only, and login-only content is not accessed.
+### Do I need a Facebook login or cookies?
+No. The Actor reads only public content visible to signed-out visitors. It never asks for cookies, passwords, or sessions, and it cannot access private, friends-only, or login-gated groups, pages, and profiles.
 
 ### Can I scrape groups, pages, and profiles in one run?
+Yes. Put public group, page, and profile URLs together in startUrls. Group and /people/ profile URLs are auto-detected; for ambiguous vanity handles set userData.surfaceType to page or profile.
 
-Yes. Paste public group, page, and personal profile URLs into `startUrls`. Group URLs and `/people/...` profile URLs are auto-detected. For ambiguous vanity handles, set `userData.surfaceType` to `page` or `profile`.
+### How much does it cost to scrape posts and comments?
+On paid Apify plans you pay $3 per 1000 posts and $1 per 1000 comments, plus a $0.005 start fee. On the FREE plan the post and comment event prices are doubled to $6 per 1000 posts and $2 per 1000 comments; the $0.005 start fee is the same on all plans. Posts scanned are billed even if they have no new comments, so narrow date and post limits for monitoring.
 
-### Why can Facebook show more comments than the Actor returns?
-
-Facebook's displayed count includes comments and replies that are hidden, filtered, private, or unavailable to signed-out visitors. The Actor reports `comments_announced`, `comments_collected`, and `comments_coverage_percent` instead of pretending every displayed row is accessible. This is a signed-out Facebook limitation, not a silent truncation.
-
-### Can I collect posts without comments?
-
-Yes. Set `commentsMode` to `none`. That mode charges for posts only and is the right choice for feed snapshots, content audits, and low-cost monitoring.
-
-### Can I collect only new comments on a schedule?
-
-Yes. Keep `dedupeStoreName` stable, use `commentsSortOrder: "NEWEST"`, and set `unionSorts: false`. The named store is scoped per Apify user, so scheduled runs return only new public comments and replies.
-
-### How does historical search work?
-
-Facebook's signed-out search page requires login. `searchMode: "HISTORY_SCAN"` walks backward through the public feed up to `searchMaxPostsPerSurface` and returns up to `maxSearchResults` matching posts without cookies. It is a bounded history scan, not Facebook keyword search.
+### How do I monitor a page or group for only new comments?
+Keep the same dedupeStoreName across scheduled runs, with commentsSortOrder NEWEST and unionSorts false. Each run returns only new public comments and replies. Scanned posts are still billed even when no new comments appear.
 
 ### Can I backfill an older date range?
+Yes for public groups. Combine onlyPostsNewerThan with onlyPostsOlderThan to bound the window, and continue with startCursor taken from SUMMARY.groupFeed.nextCursor. Page and profile feeds are newest-first, so older backfills are limited by maxPostsPerGroup.
 
-Yes for public groups. Use `onlyPostsNewerThan` and `onlyPostsOlderThan` together. Page and profile feeds are newest-first, so older backfills are bounded by `maxPostsPerGroup`. A previous run's `SUMMARY.groupFeed.nextCursor` can continue an older group backfill through `startCursor`.
+### Why does Facebook show more comments than the Actor returns?
+Facebook's counter includes hidden, filtered, private, and login-only replies that signed-out visitors cannot open. The Actor reports what was actually accessible instead of guessing.
 
-### What output formats are available?
+### How do I check coverage after a run?
+Open the SUMMARY record in the run key-value store. It shows posts scanned, comments announced versus collected, and comments_coverage_percent per surface, so you can compare expected and collected counts.
 
-The dataset can be downloaded as JSON, JSONL, CSV, Excel, or XML through Apify. Use `commentsOutput: "nested"` for AI and RAG pipelines, or `commentsOutput: "separate"` for CSV, Excel, BI, and Google Sheets workflows.
+### Can I collect posts without comments?
+Yes. Set commentsMode to none. You are billed for posts plus the $0.005 start fee and no comment events, which is best for feed snapshots, content audits, and low-cost monitoring.
 
-### How is the Actor priced?
+### How does historical keyword search work without login?
+Facebook search requires login, so searchMode HISTORY_SCAN walks backward through the public feed up to searchMaxPostsPerSurface and returns up to maxSearchResults matches. It is a bounded feed scan, not full Facebook search.
 
-Pay per event: `$0.003` per post and `$0.001` per comment on BRONZE+, plus a `$0.005` start fee per started GB (the 2 GB default is `$0.010` per run). FREE plan event prices are doubled. Platform compute and proxy usage are included in the developer-paid event price and are not added as a separate user charge. Nested and separate output cost the same because billing follows logical posts and comments, not row shape.
+### How do AI agents call this Actor over MCP?
+Agents discover the Actor, start it with the call-actor tool with input and callOptions, wait for completion, then read rows and the SUMMARY record with the get-dataset-items tool. The AI agents and MCP section defines the compact input and output contract.
 
-### Is there a spending cap?
-
-Yes. Set `maxTotalChargeUsd` in run options when you want a hard stop. If you do not set one, the Actor applies an internal `$5` safety cap so an unbounded first run cannot keep charging forever. Remove that protection only by setting your own explicit cap.
-
-### Is Marketplace enrichment included?
-
-No. Marketplace listings, prices, locations, and contact extraction are intentionally kept as a separate product.
-
-### Can AI agents and MCP clients use this Actor?
-
-Yes. The Actor is categorized for agents and MCP. Agents can discover it, inspect the input and output schemas, start a run, and read both dataset rows and the `SUMMARY` record. The compact contract is in the AI agents and MCP section.
-
-### Is it legal to scrape this data?
-
-The Actor accesses only publicly available Facebook content. Your use must still comply with Facebook's terms, applicable privacy law, and your own organization's rules. Do not collect personal data unless you have a lawful basis to do so.
+### Should I use nested or separate comments output?
+Use commentsOutput nested for AI and RAG pipelines where comments stay with their post. Use separate for CSV, Excel, BI, and Google Sheets, where posts, comments, and SUMMARY are easier to filter. Comment events are billed the same regardless of output shape.
 
 ## Public limits
 
