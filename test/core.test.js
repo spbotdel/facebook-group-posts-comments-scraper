@@ -276,6 +276,22 @@ test('applies history scan selection limit', () => {
     assert.deepEqual(applyPostSelection(posts, settings), [posts[0]]);
 });
 
+test('allows history scan without a text filter', () => {
+    const posts = [
+        { raw_text: 'first' },
+        { raw_text: 'second' },
+        { raw_text: 'third' },
+    ];
+    const settings = readSettings({
+        startUrls: [{ url: 'https://www.facebook.com/groups/123/' }],
+        searchMode: 'HISTORY_SCAN',
+        searchMaxPostsPerSurface: 300,
+        maxSearchResults: 2,
+    });
+    assert.equal(settings.search, '');
+    assert.deepEqual(applyPostSelection(posts, settings), [posts[0], posts[1]]);
+});
+
 test('filters comments by text and reactions while keeping summary rows', () => {
     const comments = [
         { record_type: 'summary', pushed: 3 },

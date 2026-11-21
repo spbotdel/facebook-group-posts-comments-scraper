@@ -92,13 +92,13 @@
     "search": {
       "title": "Post text filter",
       "type": "string",
-      "description": "Case-insensitive post text filter applied before comment enrichment. Use searchMode=HISTORY_SCAN to scan history up to searchMaxPostsPerSurface instead of only filtering the latest feed snapshot.",
+      "description": "Case-insensitive post text filter applied before comment enrichment. Leave empty with searchMode=HISTORY_SCAN to scan the public feed and return the newest posts without a text filter.",
       "editor": "textfield"
     },
     "searchMode": {
       "title": "Search mode",
       "type": "string",
-      "description": "LOCAL filters the normal latest-post snapshot. HISTORY_SCAN walks backward through the public feed up to searchMaxPostsPerSurface and returns up to maxSearchResults matching posts. Facebook's signed-out search page requires login, so this is the no-cookie historical-search equivalent.",
+      "description": "LOCAL filters the normal latest-post snapshot. HISTORY_SCAN walks backward through the public feed up to searchMaxPostsPerSurface and returns up to maxSearchResults matching posts; a text filter is optional. Facebook's signed-out search page requires login, so this is the no-cookie historical-search equivalent.",
       "editor": "select",
       "default": "LOCAL",
       "enum": ["LOCAL", "HISTORY_SCAN"],

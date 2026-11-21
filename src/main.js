@@ -48,6 +48,11 @@ await Actor.init();
 const startedAt = new Date().toISOString();
 const input = (await Actor.getInput()) || {};
 const requestedSettings = readSettings(input);
+if (requestedSettings.searchMode === 'HISTORY_SCAN' && !requestedSettings.search) {
+    log.warning(
+        'searchMode=HISTORY_SCAN without a text filter: returning the newest posts from the scan window.',
+    );
+}
 const chargingManager = Actor.getChargingManager();
 const pricingInfo = chargingManager.getPricingInfo();
 const chargeableEvents = pricingInfo?.perEventPrices || {};
@@ -438,6 +443,7 @@ const summary = {
     searchScan: settings.searchMode === 'HISTORY_SCAN' ? {
         searchMaxPostsPerSurface: settings.searchMaxPostsPerSurface,
         maxSearchResults: settings.maxSearchResults,
+        textFilterApplied: Boolean(settings.search),
     } : null,
     postFilters: {
         minComments: settings.minComments,

@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.23 - 2026-11-21
+
+- `searchMode=HISTORY_SCAN` no longer fails when `search` is empty. The Actor scans the requested public window and returns the newest posts without a text filter; `SUMMARY.searchScan.textFilterApplied` records whether a filter was used.
+- Fixes the three external one-second FAILED runs on 2026-11-17 caused by `search is required when searchMode=HISTORY_SCAN`.
+
 ## 0.1.19 - 2026-11-04
 
 - All 26 dataset fields now carry agent-facing descriptions; runtime code unchanged.

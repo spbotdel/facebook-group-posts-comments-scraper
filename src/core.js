@@ -172,9 +172,8 @@ export function readSettings(input) {
     const searchMode = enumValue(input, 'searchMode', 'LOCAL', SEARCH_MODES);
     const search = String(input?.search || '').trim().toLowerCase();
     const startCursor = input?.startCursor ? String(input.startCursor).trim() : null;
-    if (searchMode === 'HISTORY_SCAN' && !search) {
-        throw new Error('search is required when searchMode=HISTORY_SCAN.');
-    }
+    // An empty search is a valid history scan: walk the public feed and
+    // return the newest posts without a text filter.
     if (startCursor && startUrls.length !== 1) {
         throw new Error('startCursor can be used only when startUrls contains exactly one URL.');
     }
