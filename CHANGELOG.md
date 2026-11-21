@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.1.26 - 2026-11-21
+
+- Cap the post budget's requested total at `maxSearchResults` for unfiltered `HISTORY_SCAN`. The previous per-surface `ceil` could reserve comment budget for more posts than the global result cap, reducing affordable posts and surfaces.
+- Add `effectiveRequestedTotal` and `cappedByResults` to the budget result and a regression test for non-divisible result caps with comment reservation.
+
+## 0.1.25 - 2026-11-21
+
+- Restrict the unfiltered `HISTORY_SCAN` depth cap to scans with no text or post-level filters. `minComments`, `minReactions`, `filterAuthor`, and post date boundaries keep the requested scan depth so deeper matches are not silently cut off.
+- Report `postFiltersActive`, `unfilteredScanCapApplied`, and `chargeBudgetReducedDepth` in `SUMMARY.searchScan` so the reason for any depth reduction is explicit.
+- Warn when `knownPostIds` is supplied in `HISTORY_SCAN` mode, where it is ignored.
+- Correct the "newest posts" wording: an unfiltered scan returns up to `maxSearchResults` posts from the scan window, subject to `sortMode`.
+
+## 0.1.24 - 2026-11-21
+
+- Cap unfiltered `HISTORY_SCAN` depth to `maxSearchResults` split across the selected surfaces. Without a text filter, scanning deeper than the global result cap is wasted work and could burn proxy and comment budget.
+- Report both `requestedSearchMaxPostsPerSurface` and `effectiveSearchMaxPostsPerSurface` in `SUMMARY.searchScan`, and document that `knownPostIds` is ignored in `HISTORY_SCAN`.
+- Clarify schema wording and cover the effective depth cap with tests.
+
 ## 0.1.23 - 2026-11-21
 
 - `searchMode=HISTORY_SCAN` no longer fails when `search` is empty. The Actor scans the requested public window and returns the newest posts without a text filter; `SUMMARY.searchScan.textFilterApplied` records whether a filter was used.

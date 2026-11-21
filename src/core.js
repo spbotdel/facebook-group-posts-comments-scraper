@@ -172,8 +172,33 @@ export function readSettings(input) {
     const searchMode = enumValue(input, 'searchMode', 'LOCAL', SEARCH_MODES);
     const search = String(input?.search || '').trim().toLowerCase();
     const startCursor = input?.startCursor ? String(input.startCursor).trim() : null;
+    const onlyPostsNewerThan = input?.onlyPostsNewerThan || null;
+    const onlyPostsOlderThan = input?.onlyPostsOlderThan || null;
+    const knownPostIds = Array.isArray(input?.knownPostIds) ? input.knownPostIds.map(String) : [];
+    const minComments = integer(input, 'minComments', 0, 0, 1000000);
+    const minReactions = integer(input, 'minReactions', 0, 0, 1000000);
+    const filterAuthor = String(input?.filterAuthor || '').trim().toLowerCase();
+    const postFiltersActive = Boolean(
+        search
+        || onlyPostsNewerThan
+        || onlyPostsOlderThan
+        || minComments
+        || minReactions
+        || filterAuthor,
+    );
     // An empty search is a valid history scan: walk the public feed and
-    // return the newest posts without a text filter.
+    // return posts without a text filter.
+    const requestedSearchMaxPostsPerSurface = integer(input, 'searchMaxPostsPerSurface', 300, 1, 1000);
+    const maxSearchResults = integer(input, 'maxSearchResults', 100, 1, 1000);
+    // Without any post-level filters, scanning deeper than the global result
+    // cap is wasted work. Split the cap across the selected surfaces. When
+    // filters are active, keep the requested depth so matches are not cut off.
+    const effectiveSearchMaxPostsPerSurface = searchMode === 'HISTORY_SCAN' && !postFiltersActive
+        ? Math.max(1, Math.min(
+            requestedSearchMaxPostsPerSurface,
+            Math.ceil(maxSearchResults / Math.max(1, startUrls.length)),
+        ))
+        : requestedSearchMaxPostsPerSurface;
     if (startCursor && startUrls.length !== 1) {
         throw new Error('startCursor can be used only when startUrls contains exactly one URL.');
     }
@@ -188,16 +213,18 @@ export function readSettings(input) {
         profileUrls: startUrls.filter((item) => item.surfaceType === 'profile').map((item) => item.url),
         maxPostsPerGroup: integer(input, 'maxPostsPerGroup', 30, 1, 1000),
         sortMode,
-        onlyPostsNewerThan: input?.onlyPostsNewerThan || null,
-        onlyPostsOlderThan: input?.onlyPostsOlderThan || null,
-        knownPostIds: Array.isArray(input?.knownPostIds) ? input.knownPostIds.map(String) : [],
+        onlyPostsNewerThan,
+        onlyPostsOlderThan,
+        knownPostIds,
         search,
         searchMode,
-        searchMaxPostsPerSurface: integer(input, 'searchMaxPostsPerSurface', 300, 1, 1000),
-        maxSearchResults: integer(input, 'maxSearchResults', 100, 1, 1000),
-        minComments: integer(input, 'minComments', 0, 0, 1000000),
-        minReactions: integer(input, 'minReactions', 0, 0, 1000000),
-        filterAuthor: String(input?.filterAuthor || '').trim().toLowerCase(),
+        postFiltersActive,
+        searchMaxPostsPerSurface: effectiveSearchMaxPostsPerSurface,
+        requestedSearchMaxPostsPerSurface,
+        maxSearchResults,
+        minComments,
+        minReactions,
+        filterAuthor,
         startCursor,
         commentsMode,
         maxCommentsPerPost: integer(input, 'maxCommentsPerPost', 50, 1, 1000),
@@ -408,10 +435,20 @@ export function calculatePostBudget({
     requestedCommentsPerPost = 0,
     surfaceCount,
     requestedPostsPerSurface,
+    maxTotalResults = null,
 }) {
     const surfaces = Math.max(0, Math.floor(Number(surfaceCount) || 0));
     const requestedPerSurface = Math.max(0, Math.floor(Number(requestedPostsPerSurface) || 0));
     const totalRequested = surfaces * requestedPerSurface;
+    const hasResultsCap = maxTotalResults !== null
+        && maxTotalResults !== undefined
+        && maxTotalResults !== '';
+    const totalResultsCap = hasResultsCap && Number.isFinite(Number(maxTotalResults))
+        ? Math.max(0, Math.floor(Number(maxTotalResults)))
+        : null;
+    const effectiveRequestedTotal = totalResultsCap === null
+        ? totalRequested
+        : Math.min(totalRequested, totalResultsCap);
     const maxCharge = Number(maxTotalChargeUsd);
     const price = Number(postPriceUsd);
     const alreadySpent = Math.max(0, Number(spentUsd) || 0);
@@ -423,6 +460,7 @@ export function calculatePostBudget({
             skippedSurfaces: 0,
             postsPerSurface: requestedPerSurface,
             requestedTotal: totalRequested,
+            effectiveRequestedTotal,
             affordableTotal: 0,
             remainingAfterPostsUsd: Math.max(0, maxCharge - alreadySpent),
         };
@@ -435,9 +473,10 @@ export function calculatePostBudget({
             skippedSurfaces: 0,
             postsPerSurface: requestedPerSurface,
             requestedTotal,
-            affordableTotal: totalRequested,
+            effectiveRequestedTotal,
+            affordableTotal: effectiveRequestedTotal,
             remainingAfterPostsUsd: Number.isFinite(maxCharge)
-                ? Math.max(0, maxCharge - alreadySpent - totalRequested * price)
+                ? Math.max(0, maxCharge - alreadySpent - effectiveRequestedTotal * price)
                 : Infinity,
         };
     }
@@ -450,6 +489,7 @@ export function calculatePostBudget({
             skippedSurfaces: surfaces,
             postsPerSurface: 0,
             requestedTotal: totalRequested,
+            effectiveRequestedTotal,
             affordableTotal: 0,
             commentsReserveUsd: 0,
             remainingAfterPostsUsd: remaining,
@@ -460,12 +500,12 @@ export function calculatePostBudget({
     const commentsReserveUsd = requestedComments && Number.isFinite(Number(commentPriceUsd))
         ? Math.min(
             remaining / 2,
-            totalRequested * requestedComments * Math.max(0, Number(commentPriceUsd)),
+            effectiveRequestedTotal * requestedComments * Math.max(0, Number(commentPriceUsd)),
         )
         : 0;
     const postSpendBudget = Math.max(0, remaining - commentsReserveUsd);
     const affordableTotal = Math.min(
-        totalRequested,
+        effectiveRequestedTotal,
         Math.floor((postSpendBudget + Number.EPSILON) / price),
     );
     const acceptedSurfaces = Math.min(surfaces, affordableTotal);
@@ -480,6 +520,8 @@ export function calculatePostBudget({
         skippedSurfaces: surfaces - acceptedSurfaces,
         postsPerSurface,
         requestedTotal: totalRequested,
+        effectiveRequestedTotal,
+        cappedByResults: effectiveRequestedTotal < totalRequested,
         affordableTotal,
         commentsReserveUsd,
         remainingAfterPostsUsd: Math.max(0, remaining - plannedPosts * price),

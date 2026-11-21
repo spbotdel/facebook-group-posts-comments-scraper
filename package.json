@@ -1,6 +1,6 @@
 {
   "name": "facebook-group-posts-comments-scraper",
-  "version": "0.1.23",
+  "version": "0.1.26",
   "description": "Scrape public Facebook group, page, and profile posts with comments and replies without cookies.",
   "type": "module",
   "private": true,

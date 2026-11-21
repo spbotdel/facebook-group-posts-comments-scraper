@@ -50,8 +50,13 @@ const input = (await Actor.getInput()) || {};
 const requestedSettings = readSettings(input);
 if (requestedSettings.searchMode === 'HISTORY_SCAN' && !requestedSettings.search) {
     log.warning(
-        'searchMode=HISTORY_SCAN without a text filter: returning the newest posts from the scan window.',
+        requestedSettings.postFiltersActive
+            ? 'searchMode=HISTORY_SCAN without a text filter: other post filters are active, keeping the requested scan depth.'
+            : `searchMode=HISTORY_SCAN without a text filter: scanning at most ${requestedSettings.searchMaxPostsPerSurface} posts per surface and returning up to ${requestedSettings.maxSearchResults} total.`,
     );
+}
+if (requestedSettings.searchMode === 'HISTORY_SCAN' && requestedSettings.knownPostIds.length) {
+    log.warning('knownPostIds is ignored when searchMode=HISTORY_SCAN.');
 }
 const chargingManager = Actor.getChargingManager();
 const pricingInfo = chargingManager.getPricingInfo();
@@ -90,6 +95,10 @@ const requestedCommentsPerPostForBudget = requestedSettings.commentsMode === 'in
     : requestedSettings.commentsMode === 'full'
         ? requestedSettings.maxCommentsPerPost
         : 0;
+const postResultCap = requestedSettings.searchMode === 'HISTORY_SCAN'
+    && !requestedSettings.postFiltersActive
+    ? requestedSettings.maxSearchResults
+    : null;
 const postBudget = calculatePostBudget({
     maxTotalChargeUsd,
     spentUsd: spentBeforeRunUsd,
@@ -98,6 +107,7 @@ const postBudget = calculatePostBudget({
     requestedCommentsPerPost: requestedCommentsPerPostForBudget,
     surfaceCount: requestedSettings.startUrls.length,
     requestedPostsPerSurface,
+    maxTotalResults: postResultCap,
 });
 if (!postBudget.acceptedSurfaces) {
     throw new Error(
@@ -441,9 +451,14 @@ const summary = {
     search: settings.search || null,
     searchMode: settings.searchMode,
     searchScan: settings.searchMode === 'HISTORY_SCAN' ? {
-        searchMaxPostsPerSurface: settings.searchMaxPostsPerSurface,
+        requestedSearchMaxPostsPerSurface: settings.requestedSearchMaxPostsPerSurface,
+        preBudgetSearchMaxPostsPerSurface: requestedSettings.searchMaxPostsPerSurface,
+        effectiveSearchMaxPostsPerSurface: settings.searchMaxPostsPerSurface,
         maxSearchResults: settings.maxSearchResults,
         textFilterApplied: Boolean(settings.search),
+        postFiltersActive: Boolean(settings.postFiltersActive),
+        unfilteredScanCapApplied: requestedSettings.searchMaxPostsPerSurface < settings.requestedSearchMaxPostsPerSurface,
+        chargeBudgetReducedDepth: settings.searchMaxPostsPerSurface < requestedSettings.searchMaxPostsPerSurface,
     } : null,
     postFilters: {
         minComments: settings.minComments,

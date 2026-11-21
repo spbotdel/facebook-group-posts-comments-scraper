@@ -240,6 +240,22 @@ test('reserves comment budget and rejects a zero charge cap', () => {
     assert.equal(blocked.limited, true);
 });
 
+test('caps post budget at the unfiltered result cap', () => {
+    const budget = calculatePostBudget({
+        maxTotalChargeUsd: 0.008,
+        spentUsd: 0,
+        postPriceUsd: 0.003,
+        commentPriceUsd: 0.001,
+        requestedCommentsPerPost: 1,
+        surfaceCount: 3,
+        requestedPostsPerSurface: 1,
+        maxTotalResults: 2,
+    });
+    assert.equal(budget.effectiveRequestedTotal, 2);
+    assert.equal(budget.cappedByResults, true);
+    assert.equal(budget.affordableTotal, 2);
+});
+
 test('filters posts by text', () => {
     const posts = [{ raw_text: 'House for rent' }, { raw_text: 'Cars' }];
     assert.equal(filterPosts(posts, 'house').length, 1);
@@ -289,7 +305,64 @@ test('allows history scan without a text filter', () => {
         maxSearchResults: 2,
     });
     assert.equal(settings.search, '');
+    assert.equal(settings.requestedSearchMaxPostsPerSurface, 300);
+    assert.equal(settings.searchMaxPostsPerSurface, 2);
     assert.deepEqual(applyPostSelection(posts, settings), [posts[0], posts[1]]);
+});
+
+test('caps unfiltered history scan depth across surfaces', () => {
+    const settings = readSettings({
+        startUrls: [
+            { url: 'https://www.facebook.com/groups/123/' },
+            { url: 'https://www.facebook.com/zuck', userData: { surfaceType: 'profile' } },
+        ],
+        searchMode: 'HISTORY_SCAN',
+        search: '   ',
+        searchMaxPostsPerSurface: 300,
+        maxSearchResults: 10,
+    });
+    assert.equal(settings.search, '');
+    assert.equal(settings.requestedSearchMaxPostsPerSurface, 300);
+    assert.equal(settings.searchMaxPostsPerSurface, 5);
+});
+
+test('keeps requested history scan depth when other filters are active', () => {
+    const settings = readSettings({
+        startUrls: [
+            { url: 'https://www.facebook.com/groups/123/' },
+            { url: 'https://www.facebook.com/zuck', userData: { surfaceType: 'profile' } },
+        ],
+        searchMode: 'HISTORY_SCAN',
+        searchMaxPostsPerSurface: 300,
+        maxSearchResults: 10,
+        minComments: 5,
+    });
+    assert.equal(settings.postFiltersActive, true);
+    assert.equal(settings.searchMaxPostsPerSurface, 300);
+});
+
+test('does not cap LOCAL mode search depth', () => {
+    const settings = readSettings({
+        startUrls: [{ url: 'https://www.facebook.com/groups/123/' }],
+        searchMode: 'LOCAL',
+        searchMaxPostsPerSurface: 300,
+        maxSearchResults: 2,
+    });
+    assert.equal(settings.searchMaxPostsPerSurface, 300);
+});
+
+test('caps depth across surfaces and handles more surfaces than results', () => {
+    const settings = readSettings({
+        startUrls: [
+            { url: 'https://www.facebook.com/groups/1/' },
+            { url: 'https://www.facebook.com/groups/2/' },
+            { url: 'https://www.facebook.com/groups/3/' },
+        ],
+        searchMode: 'HISTORY_SCAN',
+        searchMaxPostsPerSurface: 300,
+        maxSearchResults: 2,
+    });
+    assert.equal(settings.searchMaxPostsPerSurface, 1);
 });
 
 test('filters comments by text and reactions while keeping summary rows', () => {
