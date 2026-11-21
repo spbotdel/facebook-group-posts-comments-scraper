@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.27 - 2026-11-21
+
+- Fix `calculatePostBudget` to return `requestedTotal: totalRequested` in the unlimited-charge branch; the previous shorthand referenced an undefined variable and would throw when `maxTotalChargeUsd` was `Infinity`.
+- Apply `maxTotalResults` to every `HISTORY_SCAN`, so comment reserve is capped at `maxSearchResults` for filtered scans too.
+- Keep the requested scan depth for `HISTORY_SCAN`; the charge budget now limits output through `postBudget.affordableTotal` instead of shrinking the per-surface depth and under-filling non-divisible result caps.
+- Report `plannedScanPosts`, `outputPostBudget`, and `chargeBudgetLimitedOutput` in `SUMMARY.searchScan`.
 ## 0.1.26 - 2026-11-21
 
 - Cap the post budget's requested total at `maxSearchResults` for unfiltered `HISTORY_SCAN`. The previous per-surface `ceil` could reserve comment budget for more posts than the global result cap, reducing affordable posts and surfaces.

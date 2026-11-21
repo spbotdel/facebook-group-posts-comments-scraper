@@ -256,6 +256,34 @@ test('caps post budget at the unfiltered result cap', () => {
     assert.equal(budget.affordableTotal, 2);
 });
 
+test('handles an unlimited charge budget', () => {
+    const budget = calculatePostBudget({
+        maxTotalChargeUsd: Infinity,
+        spentUsd: 0,
+        postPriceUsd: 0.003,
+        surfaceCount: 1,
+        requestedPostsPerSurface: 10,
+    });
+    assert.equal(budget.requestedTotal, 10);
+    assert.equal(budget.affordableTotal, 10);
+});
+
+test('caps comment reserve at the global result cap for filtered scans', () => {
+    const budget = calculatePostBudget({
+        maxTotalChargeUsd: 1,
+        spentUsd: 0,
+        postPriceUsd: 0.003,
+        commentPriceUsd: 0.001,
+        requestedCommentsPerPost: 50,
+        surfaceCount: 3,
+        requestedPostsPerSurface: 300,
+        maxTotalResults: 100,
+    });
+    assert.equal(budget.effectiveRequestedTotal, 100);
+    assert.equal(budget.cappedByResults, true);
+    assert.equal(budget.affordableTotal, 100);
+});
+
 test('filters posts by text', () => {
     const posts = [{ raw_text: 'House for rent' }, { raw_text: 'Cars' }];
     assert.equal(filterPosts(posts, 'house').length, 1);

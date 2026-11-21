@@ -96,7 +96,6 @@ const requestedCommentsPerPostForBudget = requestedSettings.commentsMode === 'in
         ? requestedSettings.maxCommentsPerPost
         : 0;
 const postResultCap = requestedSettings.searchMode === 'HISTORY_SCAN'
-    && !requestedSettings.postFiltersActive
     ? requestedSettings.maxSearchResults
     : null;
 const postBudget = calculatePostBudget({
@@ -124,9 +123,9 @@ const settings = {
     pageUrls: budgetedStartUrls.filter((item) => item.surfaceType === 'page').map((item) => item.url),
     profileUrls: budgetedStartUrls.filter((item) => item.surfaceType === 'profile').map((item) => item.url),
     maxPostsPerGroup: postBudget.postsPerSurface,
-    searchMaxPostsPerSurface: requestedSettings.searchMode === 'HISTORY_SCAN'
-        ? postBudget.postsPerSurface
-        : requestedSettings.searchMaxPostsPerSurface,
+    // A filtered history scan needs the requested depth to find matches.
+    // The output and charges are capped separately by postBudget.affordableTotal.
+    searchMaxPostsPerSurface: requestedSettings.searchMaxPostsPerSurface,
 };
 
 function eventChargeEnabled(eventName) {
@@ -454,11 +453,13 @@ const summary = {
         requestedSearchMaxPostsPerSurface: settings.requestedSearchMaxPostsPerSurface,
         preBudgetSearchMaxPostsPerSurface: requestedSettings.searchMaxPostsPerSurface,
         effectiveSearchMaxPostsPerSurface: settings.searchMaxPostsPerSurface,
+        plannedScanPosts: settings.searchMaxPostsPerSurface * budgetedStartUrls.length,
+        outputPostBudget: postBudget.affordableTotal,
         maxSearchResults: settings.maxSearchResults,
         textFilterApplied: Boolean(settings.search),
         postFiltersActive: Boolean(settings.postFiltersActive),
         unfilteredScanCapApplied: requestedSettings.searchMaxPostsPerSurface < settings.requestedSearchMaxPostsPerSurface,
-        chargeBudgetReducedDepth: settings.searchMaxPostsPerSurface < requestedSettings.searchMaxPostsPerSurface,
+        chargeBudgetLimitedOutput: postBudget.limited,
     } : null,
     postFilters: {
         minComments: settings.minComments,

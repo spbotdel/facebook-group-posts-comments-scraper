@@ -472,7 +472,7 @@ export function calculatePostBudget({
             acceptedSurfaces: surfaces,
             skippedSurfaces: 0,
             postsPerSurface: requestedPerSurface,
-            requestedTotal,
+            requestedTotal: totalRequested,
             effectiveRequestedTotal,
             affordableTotal: effectiveRequestedTotal,
             remainingAfterPostsUsd: Number.isFinite(maxCharge)
