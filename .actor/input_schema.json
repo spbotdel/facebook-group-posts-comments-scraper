@@ -92,13 +92,13 @@
     "search": {
       "title": "Post text filter",
       "type": "string",
-      "description": "Case-insensitive post text filter applied before comment enrichment. Leave empty with searchMode=HISTORY_SCAN to return up to maxSearchResults posts from the scan window without a text filter; when no other post-level filters are active, the effective scan depth is capped by maxSearchResults.",
+      "description": "Case-insensitive post text filter applied before comment enrichment. Leave empty with searchMode=HISTORY_SCAN to return up to maxSearchResults posts from the scan window without a text filter. When search, onlyPostsNewerThan, onlyPostsOlderThan, minComments, minReactions, and filterAuthor are all empty, the effective scan depth is capped by maxSearchResults.",
       "editor": "textfield"
     },
     "searchMode": {
       "title": "Search mode",
       "type": "string",
-      "description": "LOCAL filters the normal latest-post snapshot. HISTORY_SCAN walks backward through the public feed up to searchMaxPostsPerSurface and returns up to maxSearchResults posts; a text filter is optional. An empty search with no other post-level filters uses a reduced scan depth capped by maxSearchResults. Facebook's signed-out search page requires login, so this is the no-cookie historical-search equivalent.",
+      "description": "LOCAL filters the normal latest-post snapshot. HISTORY_SCAN walks backward through the public feed up to searchMaxPostsPerSurface and returns up to maxSearchResults posts; a text filter is optional. An empty search with no onlyPostsNewerThan, onlyPostsOlderThan, minComments, minReactions, or filterAuthor value uses a reduced scan depth capped by maxSearchResults. Facebook's signed-out search page requires login, so this is the no-cookie historical-search equivalent.",
       "editor": "select",
       "default": "LOCAL",
       "enum": ["LOCAL", "HISTORY_SCAN"],
@@ -107,7 +107,7 @@
     "searchMaxPostsPerSurface": {
       "title": "History scan depth",
       "type": "integer",
-      "description": "Requested maximum public posts walked per group, page, or profile when searchMode=HISTORY_SCAN. When search and all other post-level filters are empty, the effective depth is capped by maxSearchResults divided across the selected surfaces; with active filters the requested depth is kept.",
+      "description": "Requested maximum public posts walked per group, page, or profile when searchMode=HISTORY_SCAN. When search, onlyPostsNewerThan, onlyPostsOlderThan, minComments, minReactions, and filterAuthor are all empty, the effective depth is capped by maxSearchResults divided across the selected surfaces; if any of them is set, the requested depth is kept.",
       "editor": "number",
       "unit": "posts",
       "default": 300,
@@ -117,7 +117,7 @@
     "maxSearchResults": {
       "title": "Max results",
       "type": "integer",
-      "description": "Maximum posts returned across all surfaces when searchMode=HISTORY_SCAN. A scan with no text or post-level filters also uses this value to cap scan depth.",
+      "description": "Maximum posts returned across all surfaces when searchMode=HISTORY_SCAN. A scan with empty search, onlyPostsNewerThan, onlyPostsOlderThan, minComments, minReactions, and filterAuthor also uses this value to cap scan depth.",
       "editor": "number",
       "unit": "posts",
       "default": 100,

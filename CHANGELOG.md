@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.28 - 2026-11-21
+
+- Name `onlyPostsNewerThan`, `onlyPostsOlderThan`, `minComments`, `minReactions`, and `filterAuthor` explicitly in the schema fields that describe the reduced-depth optimization for unfiltered `HISTORY_SCAN`.
+
 ## 0.1.27 - 2026-11-21
 
 - Fix `calculatePostBudget` to return `requestedTotal: totalRequested` in the unlimited-charge branch; the previous shorthand referenced an undefined variable and would throw when `maxTotalChargeUsd` was `Infinity`.
