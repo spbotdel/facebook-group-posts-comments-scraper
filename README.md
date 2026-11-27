@@ -327,6 +327,14 @@ curl -X POST \
 
 Read dataset items from the returned `defaultDatasetId`. Read `SUMMARY` from the run's default Key-Value Store. Public task presets cover demo, generic posts-and-comments, group comments, page comments, profile comments, date-range backfill, generic comment monitoring, new-comment monitoring, CSV export, and AI-ready JSON. Posts-only runs remain available through `commentsMode: "none"`.
 
+## Related Actors
+
+| Need | Actor |
+| --- | --- |
+| Comments and reply threads for post URLs you already have | [Facebook Post Comments Scraper](https://apify.com/spbotdel/facebook-comments-scraper) |
+| Public group posts with all recoverable photos, including hidden `+N` grids | [Facebook Group Posts & All Photos Scraper](https://apify.com/spbotdel/facebook-group-posts-all-photos-scraper) |
+| Public personal-profile posts with all recoverable photos | [Facebook Profile Posts & All Photos Scraper](https://apify.com/spbotdel/facebook-profile-posts-all-photos-scraper) |
+
 ## Search keywords
 
 facebook group posts scraper, facebook group comments scraper, facebook page posts and comments, facebook profile posts scraper, scrape facebook comments without cookies, facebook comment monitoring, facebook posts csv export, ai-ready facebook dataset, facebook social listening scraper, public facebook comments api, no login facebook scraper
