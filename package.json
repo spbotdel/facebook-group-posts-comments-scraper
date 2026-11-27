@@ -7,7 +7,7 @@
   "license": "MIT",
   "scripts": {
     "start": "node src/main.js",
-    "check": "node --check src/main.js && node --check src/core.js && node --check src/engines/group/dateRange.js",
+    "check": "node --check src/main.js && node --check src/core.js && node --check src/engines/group/dateRange.js && node --check src/engines/comments/engine.js && node --check src/engines/comments/feedbackId.js",
     "test": "node --test",
     "deploy:internal-engines": "node deploy-internal-engines.mjs",
     "deploy:schedule": "node create-private-schedule.mjs",

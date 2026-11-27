@@ -95,7 +95,7 @@ export function buildFreshTopVars(idB64, afterCursor, postUrl, intent = null, fe
 // Live Depth1 reply vars: per-parent expansion, id = feedback POST_parent.
 // First fetch carries null count/cursor; deeper reply pages send -1 + cursor
 // (mirrors the browser: null on first Depth1, -1 once subReplies paginate).
-export function buildDepth1Vars(postId, parentCommentId, expansionToken, postUrl, repliesAfterCursor = null, feedLocationOverride = null) {
+export function buildDepth1Vars(postId, parentCommentId, expansionToken, postUrl, repliesAfterCursor = null, feedLocationOverride = null, feedbackIdOverride = null) {
   return {
     clientKey: null,
     expansionToken: expansionToken ?? null,
@@ -107,7 +107,7 @@ export function buildDepth1Vars(postId, parentCommentId, expansionToken, postUrl
     repliesBeforeCursor: null,
     scale: 1,
     useDefaultActor: false,
-    id: feedbackId(postId, parentCommentId),
+    id: feedbackIdOverride || feedbackId(postId, parentCommentId),
     ...RELAY_PROVIDERS,
   };
 }

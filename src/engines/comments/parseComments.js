@@ -225,7 +225,7 @@ export function parseCommentEdges(payload) {
         if (pm) parentCommentId = pm[1];
       }
     }
-    comments.push({
+    const row = {
       source_comment_id: commentId || (node?.legacy_fbid ? String(node.legacy_fbid) : null),
       raw_id: rawId,
       decoded_id: decoded,
@@ -247,7 +247,14 @@ export function parseCommentEdges(payload) {
       comments_count: replyCount,
       expansion_token: expansionToken,
       feedback_url: node?.feedback?.url ?? null,
-    });
+    };
+    // Opaque feedback id (base64 "feedback:pfbid...") is what the reply queries
+    // accept since 2026-11-27. Non-enumerable so it never reaches the dataset.
+    const ownFeedbackId = node?.feedback?.id;
+    if (typeof ownFeedbackId === 'string' && ownFeedbackId.startsWith('ZmVlZGJhY2s6')) {
+      Object.defineProperty(row, 'feedback_id', { value: ownFeedbackId, enumerable: false });
+    }
+    comments.push(row);
     if (Array.isArray(replyEdges)) {
       for (const re of replyEdges) {
         const rn = re?.node ?? re;

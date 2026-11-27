@@ -20,6 +20,7 @@ import {
   buildFreshTopVars as buildLiveTopVars, parseDateFilter, postIdFromUrl, readRunSettings, surfaceOfUrl,
 } from './settings.js';
 import { createResultChargeBudget } from './charging.js';
+import { resolveFeedbackId } from './feedbackId.js';
 // Wrapped in-process: Actor I/O boundaries replaced with the ctx adapter.
 export async function runCommentsEngine(input, ctx) {
 
@@ -237,13 +238,15 @@ const processPost = async (postUrl, postIndex) => {
   const postText = settings.includePostText ? extractPostText(html) : null;
   if (settings.includePostText) log.info(`Post text: ${postText ? postText.slice(0, 80) + '…' : 'not found'}`);
   const boot = readBoot(html);
-  const fbB64 = Buffer.from('feedback:' + postId).toString('base64');
+  const { id: fbB64, source: feedbackSource } = resolveFeedbackId(html, postId);
+  log.info(`Feedback id source: ${feedbackSource}`);
 
   const seen = new Map();
   const postPushedRows = [];
   const feedLocation = settings.feedLocation || undefined;
   let pushed = 0;
   let topPages = 0;
+  let edgesSeen = 0;
   let replyPages = 0;
   let replyThreads = 0;
   let replyPushed = 0;
@@ -295,6 +298,7 @@ const processPost = async (postUrl, postIndex) => {
     postPushedRows.push({
       source_comment_id: row.source_comment_id,
       expansion_token: row.expansion_token,
+      feedback_id: row.feedback_id ?? null,
       reply_count: row.reply_count,
       comments_count: row.comments_count,
     });
@@ -353,6 +357,7 @@ const processPost = async (postUrl, postIndex) => {
       const parsed = parseCommentEdges(payload);
       const summary = summarizePayload(payload);
       topPages += 1;
+      edgesSeen += parsed.comments.length;
       if (totalCount == null) totalCount = summary.totalCount ?? null;
 
       // Some surfaces (Reels, photos, watch pages) render for logged-out
@@ -398,6 +403,14 @@ const processPost = async (postUrl, postIndex) => {
     }
   }
 
+  // Honest empty result: the post advertises comments but every comment-list
+  // page came back with zero edges (e.g. data.node=null after a Facebook-side
+  // id/shape change). Say so instead of a silent SUCCEEDED/0 rows.
+  if (!blocked && !chargeStopped && announcedComments > 0 && topPages > 0 && edgesSeen === 0) {
+    blocked = 'comment_list_empty_response';
+    log.warning(`Comment list came back empty on ${topPages} page(s) although the post advertises ${announcedComments} comments (feedback id source: ${feedbackSource}). Facebook may have changed the comment query; report this run.`);
+  }
+
   // ── Reply walk ───────────────────────────────────────────────────────
   // Depth1 per parent, cursor-paged to the end. Verified 81/83 replies on a
   // public post in 9 requests, still without cookies.
@@ -416,7 +429,7 @@ const processPost = async (postUrl, postIndex) => {
       for (let page = 0; page < settings.maxPagesPerPost; page += 1) {
         if (blocked || chargeStopped) break;
         if (replyPushed >= settings.maxRepliesPerPost || pushed >= settings.maxCommentsPerPost) break;
-        const vars = buildDepth1Vars(postId, cand.source_comment_id, cand.expansion_token, postUrl, cursor, feedLocation);
+        const vars = buildDepth1Vars(postId, cand.source_comment_id, cand.expansion_token, postUrl, cursor, feedLocation, cand.feedback_id);
         let raw;
         try {
           raw = await fetchGraphql({ boot, postUrl, vars, docId: DOC_REPLIES_DEPTH1, friendly: OP_REPLIES_DEPTH1 });
